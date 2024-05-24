@@ -28,7 +28,7 @@ jobs:
           context: ./Lab1-bd
           file: ./Lab1-bd/Dockerfile
           push: true
-          tags: rep/laborator_2:latest
+          tags: shadowkock/lab1:latest
 
       - name: Build and push frontend image
         uses: docker/build-push-action@v2
@@ -36,7 +36,7 @@ jobs:
           context: ./Lab2-front
           file: ./Lab2-front/Dockerfile
           push: true
-          tags: rep/laborator_2:latest
+          tags: shadowkock/lab2:latest
 
 
 
