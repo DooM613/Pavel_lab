@@ -1,0 +1,63 @@
+name: CI/CD Pipeline\
+
+on:
+  push:
+    branches:
+      - main     
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secret.DOCKER_USERNAME }}
+          password: ${{ secret.DOCKER_PASSWORD }}
+
+      - name: Build and push database image
+        uses: docker/build-push-action@v2
+        with:
+          context: ./Lab1-bd
+          file: ./Lab1-bd/Dockerfile
+          tags: shadowkock/lab1:latest
+
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v2
+        with:
+          context: ./Lab2-front
+          file: ./Lab2-front/Dockerfile
+          tags: shadowkock/lab2:latest
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v1
+        with:
+          version: 'latest'
+
+      - name: Create .kube directory
+        run: mkdir -p $HOME/.kube
+
+      - name: Set up Kubeconfig
+        run: |
+          echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
+
+      - name: Deploy to Kubernetes
+        run: |
+          kubectl apply -f services.yaml
+          kubectl apply -f workloads.yaml
+        working-directory: ${{ github.workspace }}
