@@ -20,7 +20,7 @@ jobs:
         uses: docker/login-action@v1
         with:
           username: shadowkock
-          password: 1111
+          password: pavel200012
 
       - name: Build and push database image
         uses: docker/build-push-action@v2
